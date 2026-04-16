@@ -515,7 +515,9 @@ function renderResults(data, originalUrl) {
 
     // Build cobalt URL — user pastes YT link with timestamp
     const ytTimestampUrl = `https://www.youtube.com/watch?v=${esc(clip.videoId)}&t=${Math.floor(clip.start)}s`;
-    const cobaltUrl = `https://www.ssyoutube.com/watch?v=${clip.videoId}&t=${Math.floor(clip.start)}s`;
+    const ytTimestampUrl = `https://www.youtube.com/watch?v=${clip.videoId}&t=${Math.floor(clip.start)}s`;
+const yt5sUrl = `https://yt5s.to/en30/?url=${encodeURIComponent(`https://www.youtube.com/watch?v=${clip.videoId}`)}`;
+const y2mateUrl = `https://www.y2mate.com/youtube/${clip.videoId}`;
 
     card.innerHTML = `
       <div class="clip-num">0${i+1}</div>
@@ -528,18 +530,21 @@ function renderResults(data, originalUrl) {
           <span class="chip">⏹ ${fmtTime(clip.end)}</span>
           <span class="chip dur">⏱ ${fmtDur(clip.duration)}</span>
         </div>
-                 <div class="dl-btns">
-            <a class="btn-dl" href="${cobaltUrl}" target="_blank" rel="noopener">
-  ↓ Download Clip
-</a>
-            <a class="btn-yt" href="${ytTimestampUrl}" target="_blank" rel="noopener">
-              ▶ Watch on YouTube
-            </a>
-            <button class="btn-yt" onclick="copyToClipboard('${ytTimestampUrl}', this)">
-              📋 Copy Link
-            </button>
-          </div>
-        </div>
+                <div class="dl-btns">
+  <a class="btn-dl" href="${yt5sUrl}" target="_blank" rel="noopener">
+    ↓ yt5s
+  </a>
+  <a class="btn-dl" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)" href="${y2mateUrl}" target="_blank" rel="noopener">
+    ↓ y2mate
+  </a>
+  <a class="btn-yt" href="${ytTimestampUrl}" target="_blank" rel="noopener">
+    ▶ Watch on YouTube
+  </a>
+  <button class="btn-yt" onclick="copyToClipboard('${ytTimestampUrl}', this)">
+    📋 Copy Link
+  </button>
+</div>        
+</div>
       </div>
     `;
     grid.appendChild(card);
