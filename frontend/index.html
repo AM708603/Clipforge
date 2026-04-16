@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ClipForge — Turn Podcasts Into Shorts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:      #07070f;
+  --surface: #0d0d1a;
+  --card:    #111120;
+  --border:  #1c1c30;
+  --accent:  #ff3c5f;
+  --purple:  #7c3aed;
+  --gold:    #f59e0b;
+  --text:    #eaeaf5;
+  --muted:   #64648a;
+  --green:   #10b981;
+  --red:     #ff3c5f;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* noise */
+body::after {
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;
+}
+
+/* blobs */
+.blob { position:fixed;border-radius:50%;filter:blur(130px);pointer-events:none;z-index:0; }
+.b1 { width:700px;height:700px;background:rgba(124,58,237,0.07);top:-250px;right:-250px; }
+.b2 { width:600px;height:600px;background:rgba(255,60,95,0.055);bottom:-200px;left:-200px; }
+
+main { position:relative;z-index:1;max-width:880px;margin:0 auto;padding:56px 20px 100px; }
+
+/* ── HEADER ── */
+header { text-align:center;margin-bottom:52px; }
+
+.logo {
+  display:inline-flex;align-items:center;gap:10px;margin-bottom:22px;
+}
+.logo-box {
+  width:42px;height:42px;
+  background:linear-gradient(135deg,var(--accent),var(--purple));
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+}
+.logo-name {
+  font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;
+}
+
+h1 {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(50px,9vw,90px);
+  line-height:.92;letter-spacing:1px;margin-bottom:16px;
+}
+h1 em { color:var(--accent);font-style:normal; }
+h1 s  { color:var(--muted);text-decoration:none; }
+
+.sub { color:var(--muted);font-size:15px;max-width:440px;margin:0 auto 20px;line-height:1.65; }
+
+.platforms {
+  display:flex;justify-content:center;gap:8px;flex-wrap:wrap;
+}
+.plat {
+  border-radius:20px;padding:4px 13px;font-size:11px;
+  font-family:'JetBrains Mono',monospace;letter-spacing:.4px;
+  background:var(--card);border:1px solid var(--border);
+}
+.plat.ig{border-color:rgba(225,48,108,.3);color:#e1306c;}
+.plat.yt{border-color:rgba(255,0,0,.3);color:#ff4444;}
+.plat.tt{border-color:rgba(105,201,208,.3);color:#69c9d0;}
+
+/* ── FREE BADGE ── */
+.free-badge {
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);
+  border-radius:20px;padding:5px 14px;font-size:12px;color:var(--green);
+  font-family:'JetBrains Mono',monospace;letter-spacing:.5px;margin-bottom:22px;
+}
+
+/* ── CARD ── */
+.card {
+  background:var(--card);border:1px solid var(--border);
+  border-radius:18px;padding:26px;margin-bottom:20px;position:relative;overflow:hidden;
+}
+.card::before {
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,60,95,.4),transparent);
+}
+
+.lbl {
+  display:block;font-size:10px;font-family:'JetBrains Mono',monospace;
+  text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);margin-bottom:9px;
+}
+
+/* URL row */
+.url-row { display:flex;gap:8px; }
+input[type=url] {
+  flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;
+  padding:13px 15px;outline:none;transition:border-color .2s,box-shadow .2s;
+}
+input[type=url]:focus { border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,60,95,.1); }
+input[type=url]::placeholder { color:var(--muted); }
+
+.btn-ghost {
+  background:transparent;border:1px solid var(--border);border-radius:10px;
+  color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  padding:0 17px;cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.btn-ghost:hover { border-color:var(--accent);color:var(--accent); }
+
+/* preview */
+.preview {
+  display:none;margin-top:16px;background:var(--surface);border:1px solid var(--border);
+  border-radius:11px;padding:13px;gap:13px;align-items:center;
+}
+.preview.show { display:flex; }
+.prev-thumb { width:80px;height:45px;border-radius:7px;object-fit:cover;flex-shrink:0; }
+.prev-title { font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.prev-ch { font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px; }
+
+/* options */
+.opts { display:flex;gap:14px;margin-top:16px;flex-wrap:wrap;align-items:flex-end; }
+.opt { display:flex;flex-direction:column;gap:5px; }
+select {
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;
+  padding:8px 30px 8px 12px;outline:none;cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%2364648a' d='M5 7L0 2h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+}
+
+/* main button */
+.btn-main {
+  margin-top:16px;width:100%;
+  background:linear-gradient(135deg,var(--accent),var(--purple));
+  border:none;border-radius:12px;color:#fff;
+  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;
+  padding:16px;cursor:pointer;position:relative;overflow:hidden;
+  transition:transform .15s,opacity .15s;
+}
+.btn-main:hover:not(:disabled) { transform:translateY(-1px);opacity:.9; }
+.btn-main:disabled { opacity:.45;cursor:not-allowed; }
+.btn-main::after { content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.08)); }
+
+/* ── LOADING ── */
+#loading { display:none;text-align:center;padding:36px 0; }
+#loading.show { display:block; }
+.spinner {
+  width:40px;height:40px;border:3px solid var(--border);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin .8s linear infinite;margin:0 auto 16px;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.loading-msg { color:var(--muted);font-size:14px;font-family:'JetBrains Mono',monospace; }
+.loading-steps { display:flex;flex-direction:column;gap:6px;margin-top:16px;max-width:300px;margin-left:auto;margin-right:auto; }
+.lstep { font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center;text-align:left; }
+.lstep.active { color:var(--text); }
+.lstep.done { color:var(--green); }
+.ldot { width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0; }
+.lstep.active .ldot { background:var(--accent);animation:pulse 1s infinite; }
+.lstep.done .ldot { background:var(--green); }
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,60,95,.4);} 50%{box-shadow:0 0 0 4px rgba(255,60,95,0);} }
+
+/* ── ERROR ── */
+.error-box {
+  display:none;background:rgba(255,60,95,.07);border:1px solid rgba(255,60,95,.2);
+  border-radius:11px;padding:14px 18px;color:#ff7090;
+  font-size:13px;font-family:'JetBrains Mono',monospace;margin-bottom:18px;
+}
+.error-box.show { display:block; }
+
+/* ── RESULTS ── */
+#results { display:none; }
+#results.show { display:block; }
+
+.res-header {
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;
+}
+.res-title { font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:2px; }
+.res-meta { font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace; }
+
+.transcript-notice {
+  background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);
+  border-radius:10px;padding:10px 15px;font-size:12px;color:var(--gold);
+  font-family:'JetBrains Mono',monospace;margin-bottom:18px;display:none;
+}
+.transcript-notice.show { display:block; }
+
+/* clip cards */
+.clips { display:flex;flex-direction:column;gap:14px; }
+
+.clip-card {
+  background:var(--card);border:1px solid var(--border);border-radius:15px;
+  padding:20px 22px;
+  display:grid;grid-template-columns:44px 1fr;gap:16px;
+  transition:border-color .2s,transform .2s;
+  animation:slideUp .35s ease both;
+}
+.clip-card:hover { border-color:rgba(255,60,95,.3);transform:translateY(-2px); }
+@keyframes slideUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+.clip-num {
+  font-family:'Bebas Neue',sans-serif;font-size:38px;
+  color:var(--border);line-height:1;padding-top:2px;
+}
+
+.clip-body { min-width:0; }
+.clip-title {
+  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;margin-bottom:5px;
+}
+.clip-desc { font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:8px; }
+.clip-hook {
+  background:rgba(124,58,237,.1);border-left:3px solid var(--purple);
+  border-radius:0 6px 6px 0;padding:6px 11px;
+  font-size:12px;color:#a78bfa;font-style:italic;margin-bottom:11px;
+}
+
+.ts-row { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px; }
+.chip {
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  padding:3px 9px;border-radius:6px;
+  background:var(--surface);border:1px solid var(--border);color:var(--muted);
+}
+.chip.dur { background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2);color:var(--gold); }
+
+/* download section */
+.dl-section {
+  background:var(--surface);border:1px solid var(--border);border-radius:11px;
+  padding:14px 16px;
+}
+.dl-title {
+  font-size:11px;font-family:'JetBrains Mono',monospace;
+  text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:10px;
+}
+.dl-steps { display:flex;flex-direction:column;gap:6px;margin-bottom:12px; }
+.dl-step {
+  display:flex;gap:8px;align-items:flex-start;font-size:12px;color:#aaa;line-height:1.5;
+}
+.dl-step-num {
+  width:18px;height:18px;background:var(--accent);color:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;
+}
+.dl-btns { display:flex;gap:8px;flex-wrap:wrap; }
+
+.btn-dl {
+  background:linear-gradient(135deg,var(--accent),var(--purple));
+  border:none;border-radius:9px;color:#fff;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  padding:9px 16px;cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:opacity .15s,transform .15s;
+}
+.btn-dl:hover { opacity:.88;transform:translateY(-1px); }
+
+.btn-yt {
+  background:transparent;border:1px solid var(--border);border-radius:9px;
+  color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  padding:8px 14px;cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center;gap:5px;
+  transition:all .15s;
+}
+.btn-yt:hover { border-color:#ff4444;color:#ff4444; }
+
+/* HOW TO USE cobalt box */
+.cobalt-info {
+  background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);
+  border-radius:12px;padding:16px 18px;margin-top:20px;
+}
+.cobalt-info h3 {
+  font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;
+  color:var(--green);margin-bottom:8px;
+}
+.cobalt-info p { font-size:13px;color:#888;line-height:1.6; }
+.cobalt-info code {
+  background:var(--surface);border:1px solid var(--border);border-radius:4px;
+  padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#a8b8d8;
+}
+
+footer {
+  text-align:center;padding:40px 0 16px;color:var(--muted);
+  font-size:11px;font-family:'JetBrains Mono',monospace;
+  position:relative;z-index:1;
+}
+footer span { color:var(--accent); }
+
+@media(max-width:580px){
+  .clip-card{grid-template-columns:32px 1fr;}
+  .url-row{flex-direction:column;}
+  .btn-ghost{padding:12px;}
+  .dl-btns{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+
+<main>
+  <header>
+    <div class="logo">
+      <div class="logo-box">✂️</div>
+      <div class="logo-name">CLIPFORGE</div>
+    </div>
+    <div class="free-badge">✓ 100% FREE — No Card — No Server</div>
+    <h1>TURN LONG <em>VIDEOS</em><br>INTO <s>VIRAL</s> SHORTS</h1>
+    <p class="sub">Paste any YouTube podcast or long video. Gemini AI finds the best moments. Download your clips free.</p>
+    <div class="platforms">
+      <span class="plat ig">● Instagram Reels</span>
+      <span class="plat yt">● YouTube Shorts</span>
+      <span class="plat tt">● TikTok</span>
+    </div>
+  </header>
+
+  <!-- INPUT -->
+  <div class="card">
+    <span class="lbl">YouTube Video URL</span>
+    <div class="url-row">
+      <input type="url" id="urlInput" placeholder="https://youtube.com/watch?v=..."/>
+      <button class="btn-ghost" onclick="previewVideo()">Preview</button>
+    </div>
+
+    <div class="preview" id="preview">
+      <img class="prev-thumb" id="prevThumb" src="" alt=""/>
+      <div>
+        <div class="prev-title" id="prevTitle"></div>
+        <div class="prev-ch" id="prevCh"></div>
+      </div>
+    </div>
+
+    <div class="opts">
+      <div class="opt">
+        <span class="lbl">Number of clips</span>
+        <select id="numClips">
+          <option value="3">3 clips</option>
+          <option value="5" selected>5 clips</option>
+          <option value="7">7 clips</option>
+          <option value="8">8 clips</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-main" id="goBtn" onclick="findClips()">
+      ⚡ FIND MY BEST CLIPS
+    </button>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-box" id="errBox"></div>
+
+  <!-- LOADING -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="loading-msg">Gemini AI is finding your best moments…</div>
+    <div class="loading-steps">
+      <div class="lstep" id="ls1"><div class="ldot"></div>Fetching video info</div>
+      <div class="lstep" id="ls2"><div class="ldot"></div>Reading transcript</div>
+      <div class="lstep" id="ls3"><div class="ldot"></div>AI analyzing best moments</div>
+      <div class="lstep" id="ls4"><div class="ldot"></div>Building your clips</div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="res-header">
+      <div class="res-title">YOUR CLIPS</div>
+      <div class="res-meta" id="resMeta"></div>
+    </div>
+
+    <div class="transcript-notice" id="transcriptNotice">
+      ⚠ No transcript found — AI used smart timing estimates. Results may be less precise.
+    </div>
+
+    <div class="clips" id="clipsGrid"></div>
+
+    <div class="cobalt-info">
+      <h3>📥 How to download your clips</h3>
+      <p>
+        Each clip has a <strong>Download Clip</strong> button that opens <code>cobalt.tools</code> — a completely free, open-source video downloader.<br><br>
+        On cobalt.tools: paste the YouTube link shown → choose quality → click Download. Your clip starts at the exact timestamp.
+      </p>
+    </div>
+  </div>
+</main>
+
+<footer>Built with <span>ClipForge</span> · Gemini AI · cobalt.tools · 100% Free Forever</footer>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// CONFIG — replace with your Cloudflare Worker URL after deploy
+// ─────────────────────────────────────────────────────────────
+const API = "https://YOUR-WORKER.workers.dev";
+// ─────────────────────────────────────────────────────────────
+
+function fmtTime(s) {
+  s = Math.floor(s);
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+  if (h > 0) return `${h}:${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+  return `${m}:${String(sec).padStart(2,"0")}`;
+}
+function fmtDur(s) {
+  s = Math.round(s);
+  if (s >= 60) return `${Math.floor(s/60)}m ${s%60}s`;
+  return `${s}s`;
+}
+function esc(s) {
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function showErr(msg) {
+  const el = document.getElementById("errBox");
+  el.textContent = "⚠ " + msg;
+  el.classList.add("show");
+}
+function hideErr() { document.getElementById("errBox").classList.remove("show"); }
+
+// Animated loading steps
+let stepTimer = null;
+function startSteps() {
+  const steps = ["ls1","ls2","ls3","ls4"];
+  let i = 0;
+  steps.forEach(id => document.getElementById(id).className = "lstep");
+  document.getElementById(steps[0]).className = "lstep active";
+  stepTimer = setInterval(() => {
+    document.getElementById(steps[i]).className = "lstep done";
+    i++;
+    if (i < steps.length) document.getElementById(steps[i]).className = "lstep active";
+    else clearInterval(stepTimer);
+  }, 1800);
+}
+function stopSteps() {
+  clearInterval(stepTimer);
+  ["ls1","ls2","ls3","ls4"].forEach(id => {
+    document.getElementById(id).className = "lstep done";
+  });
+}
+
+async function previewVideo() {
+  hideErr();
+  const url = document.getElementById("urlInput").value.trim();
+  if (!url) return;
+  try {
+    const res = await fetch(`${API}/api/info`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ url })
+    });
+    const d = await res.json();
+    if (d.error) throw new Error(d.error);
+    document.getElementById("prevThumb").src = d.thumbnail || "";
+    document.getElementById("prevTitle").textContent = d.title || "";
+    document.getElementById("prevCh").textContent = d.channel || "";
+    document.getElementById("preview").classList.add("show");
+  } catch(e) { showErr(e.message); }
+}
+
+async function findClips() {
+  hideErr();
+  const url = document.getElementById("urlInput").value.trim();
+  if (!url) { showErr("Please paste a YouTube URL first."); return; }
+
+  const numClips = parseInt(document.getElementById("numClips").value);
+  const goBtn = document.getElementById("goBtn");
+
+  goBtn.disabled = true;
+  document.getElementById("loading").classList.add("show");
+  document.getElementById("results").classList.remove("show");
+  startSteps();
+
+  try {
+    const res = await fetch(`${API}/api/clips`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ url, num_clips: numClips })
+    });
+    const d = await res.json();
+    if (d.error) throw new Error(d.error);
+    stopSteps();
+    renderResults(d, url);
+  } catch(e) {
+    stopSteps();
+    showErr(e.message || "Something went wrong. Try again.");
+  } finally {
+    goBtn.disabled = false;
+    document.getElementById("loading").classList.remove("show");
+  }
+}
+
+function renderResults(data, originalUrl) {
+  const clips = data.clips || [];
+  document.getElementById("resMeta").textContent = `${clips.length} clips found`;
+
+  const notice = document.getElementById("transcriptNotice");
+  notice.classList.toggle("show", !data.has_transcript);
+
+  const grid = document.getElementById("clipsGrid");
+  grid.innerHTML = "";
+
+  clips.forEach((clip, i) => {
+    const card = document.createElement("div");
+    card.className = "clip-card";
+    card.style.animationDelay = (i * 0.07) + "s";
+
+    // Build cobalt URL — user pastes YT link with timestamp
+    const ytTimestampUrl = `https://www.youtube.com/watch?v=${esc(clip.videoId)}&t=${Math.floor(clip.start)}s`;
+    const cobaltUrl = `https://cobalt.tools/`;
+
+    card.innerHTML = `
+      <div class="clip-num">0${i+1}</div>
+      <div class="clip-body">
+        <div class="clip-title">${esc(clip.title)}</div>
+        <div class="clip-desc">${esc(clip.description)}</div>
+        ${clip.hook ? `<div class="clip-hook">"${esc(clip.hook)}"</div>` : ""}
+        <div class="ts-row">
+          <span class="chip">▶ ${fmtTime(clip.start)}</span>
+          <span class="chip">⏹ ${fmtTime(clip.end)}</span>
+          <span class="chip dur">⏱ ${fmtDur(clip.duration)}</span>
+        </div>
+        <div class="dl-section">
+          <div class="dl-title">Download this clip</div>
+          <div class="dl-steps">
+            <div class="dl-step">
+              <div class="dl-step-num">1</div>
+              <span>Click <strong>Download Clip</strong> → cobalt.tools opens</span>
+            </div>
+            <div class="dl-step">
+              <div class="dl-step-num">2</div>
+              <span>Paste this link into cobalt.tools: <code style="font-family:monospace;font-size:11px;background:#0d0d1a;padding:2px 6px;border-radius:4px;color:#93c5fd;word-break:break-all;">${ytTimestampUrl}</code></span>
+            </div>
+            <div class="dl-step">
+              <div class="dl-step-num">3</div>
+              <span>Choose quality → Download → Done! ✓</span>
+            </div>
+          </div>
+          <div class="dl-btns">
+            <a class="btn-dl" href="${cobaltUrl}" target="_blank" rel="noopener" onclick="copyUrl(event, '${ytTimestampUrl}')">
+              ↓ Download Clip
+            </a>
+            <a class="btn-yt" href="${ytTimestampUrl}" target="_blank" rel="noopener">
+              ▶ Watch on YouTube
+            </a>
+            <button class="btn-yt" onclick="copyToClipboard('${ytTimestampUrl}', this)">
+              📋 Copy Link
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  document.getElementById("results").classList.add("show");
+  document.getElementById("results").scrollIntoView({ behavior:"smooth", block:"start" });
+}
+
+function copyUrl(e, url) {
+  // Copy the timestamp URL to clipboard automatically when they click Download
+  navigator.clipboard.writeText(url).catch(()=>{});
+}
+
+function copyToClipboard(url, btn) {
+  navigator.clipboard.writeText(url).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = "✓ Copied!";
+    btn.style.color = "var(--green)";
+    btn.style.borderColor = "var(--green)";
+    setTimeout(() => { btn.textContent = orig; btn.style.color=""; btn.style.borderColor=""; }, 2000);
+  }).catch(() => {
+    prompt("Copy this link:", url);
+  });
+}
+
+// Enter key on URL input
+document.getElementById("urlInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") previewVideo();
+});
+</script>
+</body>
+</html>

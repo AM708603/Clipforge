@@ -1,0 +1,6 @@
+# Netlify config for ClipForge frontend
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

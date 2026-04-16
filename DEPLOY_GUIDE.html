@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ClipForge — Full Deployment Guide (No Card)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f7f7f4;--card:#fff;--border:#e8e5de;
+  --accent:#ff3c5f;--purple:#7c3aed;--green:#059669;--yellow:#d97706;--blue:#2563eb;
+  --text:#18182e;--muted:#888;--code:#1a1a2e;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;line-height:1.6}
+.page{max-width:840px;margin:0 auto;padding:48px 20px 80px}
+
+/* header */
+.hdr{text-align:center;margin-bottom:44px;padding-bottom:32px;border-bottom:2px solid var(--border)}
+.tag{display:inline-block;background:var(--green);color:#fff;font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:1.5px;padding:4px 14px;border-radius:20px;margin-bottom:14px;text-transform:uppercase}
+.hdr h1{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:2px;line-height:1;margin-bottom:10px}
+.hdr p{color:var(--muted);font-size:14px}
+.nocard{display:inline-flex;align-items:center;gap:6px;background:rgba(5,150,105,.08);border:1px solid rgba(5,150,105,.2);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--green);font-family:'JetBrains Mono',monospace;margin-top:12px}
+
+/* toc */
+.toc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:36px}
+.toc-hd{font-size:10px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:12px}
+.toc ul{list-style:none}
+.toc li{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px;font-weight:500}
+.toc li:last-child{border-bottom:none}
+.tn{width:22px;height:22px;background:var(--bg);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--muted);flex-shrink:0}
+
+/* step card */
+.step{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:24px;overflow:hidden}
+.step-hd{display:flex;align-items:center;gap:12px;padding:18px 24px;background:var(--bg);border-bottom:1px solid var(--border)}
+.badge{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;padding:3px 11px;border-radius:20px;text-transform:uppercase}
+.b-cf{background:rgba(249,130,49,.1);color:#f48225;border:1px solid rgba(249,130,49,.2)}
+.b-gh{background:rgba(0,0,0,.07);color:#333;border:1px solid rgba(0,0,0,.12)}
+.b-nl{background:rgba(0,194,168,.1);color:#00c2a8;border:1px solid rgba(0,194,168,.2)}
+.b-gm{background:rgba(66,133,244,.1);color:#4285f4;border:1px solid rgba(66,133,244,.2)}
+.b-ok{background:rgba(5,150,105,.1);color:var(--green);border:1px solid rgba(5,150,105,.2)}
+.step-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;flex:1}
+.step-body{padding:22px 24px}
+
+/* substeps */
+.subs{display:flex;flex-direction:column;gap:20px}
+.sub{display:grid;grid-template-columns:30px 1fr;gap:14px;align-items:start}
+.snum{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;color:#fff;flex-shrink:0;margin-top:1px}
+.snum.r{background:var(--accent)}
+.snum.p{background:var(--purple)}
+.snum.g{background:var(--green)}
+.snum.b{background:var(--blue)}
+.sc h3{font-size:15px;font-weight:600;margin-bottom:4px}
+.sc p{font-size:13px;color:#555;margin-bottom:6px;line-height:1.55}
+.sc p strong{color:var(--text)}
+
+/* code */
+.code{background:var(--code);border-radius:10px;padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#a8b8d8;margin:6px 0;overflow-x:auto;position:relative}
+.co{color:#5a6a8a}.hi{color:#ff8fa3}.va{color:#7dd3a8}.ke{color:#93c5fd}
+
+/* mockup */
+.mock{background:#1e1e2e;border-radius:11px;overflow:hidden;margin:8px 0;border:1px solid #2a2a3e}
+.mock-bar{background:#2a2a3e;padding:9px 14px;display:flex;align-items:center;gap:7px}
+.dot{width:9px;height:9px;border-radius:50%}
+.dr{background:#ff5f57}.dy{background:#ffbd2e}.dg{background:#28c840}
+.mock-url{background:#1a1a2e;border-radius:5px;padding:3px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;margin-left:6px}
+.mock-body{padding:16px 18px}
+.mf{display:flex;flex-direction:column;gap:10px}
+.mfl{font-size:10px;font-family:'JetBrains Mono',monospace;color:#7a7a9a;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.mfv{background:#2a2a3e;border:1px solid #3a3a5e;border-radius:8px;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#a8b8d8}
+.mfv.active{border-color:#f48225;box-shadow:0 0 0 3px rgba(249,130,49,.12)}
+.mfv .arr{color:#ff8fa3}
+.mbtn{background:linear-gradient(135deg,#f48225,#ff6b35);border-radius:8px;padding:10px 18px;color:#fff;font-size:13px;font-weight:600;text-align:center;font-family:'DM Sans',sans-serif}
+.mbtn.green{background:linear-gradient(135deg,#059669,#0d9488)}
+.mbtn.blue{background:linear-gradient(135deg,#2563eb,#7c3aed)}
+.mrow{display:flex;gap:8px;flex-wrap:wrap}
+.mtag{background:rgba(249,130,49,.15);border:1px solid rgba(249,130,49,.3);border-radius:6px;padding:4px 10px;font-size:11px;color:#f48225;font-family:'JetBrains Mono',monospace}
+.mtag.sel{background:rgba(249,130,49,.3);border-color:#f48225}
+.mdiv{height:1px;background:#2a2a3e;margin:4px 0}
+
+/* env row */
+.erow{display:grid;grid-template-columns:1fr 1fr auto;gap:7px;margin-bottom:7px;align-items:center}
+.ek{background:#2a2a3e;border:1px solid #4a4a6e;border-radius:7px;padding:8px 11px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#93c5fd}
+.ev{background:#2a2a3e;border:1px solid #3a3a5e;border-radius:7px;padding:8px 11px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#7dd3a8}
+.esave{background:#f48225;color:#fff;border-radius:7px;padding:8px 12px;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap}
+
+/* alerts */
+.alert{border-radius:9px;padding:11px 14px;font-size:13px;display:flex;gap:8px;align-items:flex-start;margin:8px 0;line-height:1.5}
+.ai{background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.18);color:#3b82f6}
+.aw{background:rgba(217,119,6,.07);border:1px solid rgba(217,119,6,.18);color:var(--yellow)}
+.ag{background:rgba(5,150,105,.07);border:1px solid rgba(5,150,105,.18);color:var(--green)}
+.alert strong{font-weight:600}
+
+/* summary */
+.sum{background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:16px;padding:26px;color:#fff;margin-top:14px}
+.sum h2{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;margin-bottom:14px}
+.sitems{display:flex;flex-direction:column;gap:9px}
+.sitem{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500}
+
+.divider{text-align:center;color:var(--muted);font-size:20px;letter-spacing:4px;margin:12px 0}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="hdr">
+  <div class="tag">Complete Guide — No Credit Card</div>
+  <h1>DEPLOY CLIPFORGE<br>COMPLETELY FREE</h1>
+  <p>Cloudflare Workers (backend) + Netlify (frontend) + Gemini AI — zero cost, zero card.</p>
+  <div class="nocard">✓ No credit card required anywhere</div>
+</div>
+
+<div class="toc">
+  <div class="toc-hd">What we'll do</div>
+  <ul>
+    <li><span class="tn">1</span> Get free Gemini API key from Google</li>
+    <li><span class="tn">2</span> Create free Cloudflare account &amp; deploy Worker</li>
+    <li><span class="tn">3</span> Add Gemini key to Cloudflare Worker</li>
+    <li><span class="tn">4</span> Update frontend URL &amp; deploy on Netlify</li>
+  </ul>
+</div>
+
+<!-- STEP 1 — GEMINI -->
+<div class="step">
+  <div class="step-hd">
+    <span class="badge b-gm">Google Gemini</span>
+    <div class="step-title">GET YOUR FREE GEMINI API KEY</div>
+  </div>
+  <div class="step-body">
+    <div class="subs">
+
+      <div class="sub">
+        <div class="snum b">1</div>
+        <div class="sc">
+          <h3>Open Google AI Studio</h3>
+          <p>Go to this URL in your browser:</p>
+          <div class="code"><span class="hi">https://aistudio.google.com/app/apikey</span></div>
+          <div class="alert ai"><span>ℹ</span><span><strong>Sign in</strong> with your Google account. Completely free — 1500 requests/day at no cost.</span></div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <div class="snum b">2</div>
+        <div class="sc">
+          <h3>Click "Create API Key"</h3>
+          <div class="mock">
+            <div class="mock-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><div class="mock-url">aistudio.google.com/app/apikey</div></div>
+            <div class="mock-body">
+              <div class="mf">
+                <div style="color:#a8b8d8;font-size:14px;font-family:'DM Sans',sans-serif">API Keys</div>
+                <div class="mbtn blue" style="max-width:180px;font-size:13px">+ Create API key</div>
+                <div class="mdiv"></div>
+                <div style="color:#5a6a8a;font-size:12px;font-family:'JetBrains Mono',monospace">No keys yet</div>
+              </div>
+            </div>
+          </div>
+          <p>A popup appears — click <strong>Create API key in new project</strong>.</p>
+        </div>
+      </div>
+
+      <div class="sub">
+        <div class="snum b">3</div>
+        <div class="sc">
+          <h3>Copy your API key</h3>
+          <p>It looks like this — copy it and save it somewhere:</p>
+          <div class="code"><span class="ke">AIzaSy</span><span class="va">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span></div>
+          <div class="alert aw"><span>⚠</span><span><strong>Keep it secret.</strong> Never paste it in HTML or push it to GitHub. We'll add it safely as a Worker secret.</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="divider">↓</div>
+
+<!-- STEP 2 — CLOUDFLARE -->
+<div class="step">
+  <div class="step-hd">
+    <span class="badge b-cf">Cloudflare</span>
+    <div class="step-title">DEPLOY BACKEND ON CLOUDFLARE WORKERS</div>
+  </div>
+  <div class="step-body">
+    <div class="subs">
+
+      <div class="sub">
+        <div class="snum r">1</div>
+        <div class="sc">
+          <h3>Create a free Cloudflare account</h3>
+          <p>Go to <strong>cloudflare.com</strong> → click <strong>Sign Up</strong> → sign up with email. No card asked.</p>
+          <div class="code"><span class="hi">https://cloudflare.com</span></div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <div class="snum r">2</div>
+        <div class="sc">
+          <h3>Go to Workers &amp; Pages</h3>
+          <p>After logging in, in the left sidebar click <strong>Workers &amp; Pages</strong>.</p>
+          <div class="mock">
+            <div class="mock-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><div class="mock-url">dash.cloudflare.com</div></div>
+            <div class="mock-body">
+              <div class="mf">
+                <div style="display:flex;gap:12px;align-items:center">
+                  <div style="width:3px;height:40px;background:#f48225;border-radius:3px"></div>
+                  <div>
+                    <div style="color:#f48225;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif">Workers &amp; Pages</div>
+                    <div style="color:#5a6a8a;font-size:11px;font-family:'JetBrains Mono',monospace">← click this in sidebar</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <div class="snum r">3</div>
+        <div class="sc">
+          <h3>Click "Create" → "Create Worker"</h3>
+          <div class="mock">
+            <div class="mock-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><div class="mock-url">Workers &amp; Pages</div></div>
+            <div class="mock-body">
+              <div class="mf">
+                <div class="mrow">
+                  <div class="mtag sel">+ Create</div>
+                  <div class="mtag">Connect to Git</div>
+                </div>
+                <div class="mdiv"></div>
+                <div class="mrow">
+                  <div class="mtag sel">Create Worker</div>
+                  <div class="mtag">Create Pages</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <div class="snum r">4</div>
+        <div class="sc">
+          <h3>Name your Worker and deploy</h3>
+          <p>Give it a name like <strong>clipforge-worker</strong> then click <strong>Deploy</strong>. It creates a default "Hello World" worker.</p>
+          <div class="mock">
+            <div class="mock-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+            <div class="mock-body">
+              <div class="mf">
+                <div class="mfl">Worker Name</div>
+                <div class="mfv active"><span class="arr">→ </span><span class="va">clipforge-worker</span></div>
+                <div class="mbtn" style="max-width:160px">Deploy</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <div class="snum r">5</div>
+        <div class="sc">
+          <h3>Open the Worker editor and paste our code</h3>
+          <p>After deploying, click <strong>Edit Code</strong>. You'll see a code editor. <strong>Select all the existing code and delete it.</strong></p>
+          <p>Then open the file <code style="font-family:monospace;background:#e8e5de;padding:2px 6px;border-radius:4px;font-size:12px">worker/index.js</code> from your GitHub repo, copy its entire contents, and paste it into the editor.</p>
+          <div class="alert ai"><span>ℹ</span><span>The <strong>worker/index.js</strong> file is in the clipforge folder you downloaded. Open it in any text editor (Notepad, VS Code) → Select All → Copy → Paste into Cloudflare editor.</span></div>
+          <p style="margin-top:8px;">Click <strong>Deploy</strong> (top right) to save.</p>
+        </div>
+      </div>
+
+      <div class="sub">
+        <div class="snum r">6</div>
+        <div class="sc">
+          <h3>Copy your Worker URL</h3>
+          <p>After deploying you'll see your Worker URL at the top. Copy it — it looks like:</p>
+          <div class="code"><span class="va">https://clipforge-worker.YOUR-NAME.workers.dev</span></div>
+          <div class="alert ag"><span>✓</span><span>Save this URL — you'll need it in Step 4 to update the frontend.</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="divider">↓</div>
+
+<!-- STEP 3 — ENV VAR -->
+<div class="step">
+  <div class="step-hd">
+    <span class="badge b-cf">Cloudflare</span>
+    <div class="step-title">ADD YOUR GEMINI KEY AS A SECRET</div>
+  </div>
+  <div class="step-body">
+    <div class="subs">
+
+      <div class="sub">
+        <div class="snum p">1</div>
+        <div class="sc">
+          <h3>Go to Worker Settings → Variables</h3>
+          <p>On your Worker page, click the <strong>Settings</strong> tab → then <strong>Variables and Secrets</strong>.</p>
+          <div class="mock">
+            <div class="mock-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+            <div class="mock-body">
+              <div class="mf">
+                <div class="mrow">
+                  <div class="mtag">Metrics</div>
+                  <div class="mtag sel">Settings</div>
+                  <div class="mtag">Logs</div>
+                  <div class="mtag">Triggers</div>
+                </div>
+                <div class="mdiv"></div>
+                <div style="color:#a8b8d8;font-size:13px;font-family:'DM Sans',sans-serif">Variables and Secrets</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <div class="snum p">2</div>
+        <div class="sc">
+          <h3>Add the Gemini API Key as a Secret</h3>
+          <p>Click <strong>+ Add variable</strong>. Fill in exactly:</p>
+          <div class="mock">
+            <div class="mock-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+            <div class="mock-body">
+              <div class="erow">
+                <div class="ek">GEMINI_API_KEY</div>
+                <div class="ev">AIzaSyXXXXXXXXXX…</div>
+                <div class="esave">Save</div>
+              </div>
+              <div style="margin-top:6px">
+                <div class="mrow">
+                  <div class="mtag sel">Secret (Encrypted)</div>
+                  <div class="mtag">Text</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="alert aw"><span>⚠</span><span>Set the type to <strong>Secret (Encrypted)</strong> — this hides your key safely. Key name must be exactly <strong>GEMINI_API_KEY</strong>.</span></div>
+          <p>Click <strong>Deploy</strong> to save.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="divider">↓</div>
+
+<!-- STEP 4 — FRONTEND -->
+<div class="step">
+  <div class="step-hd">
+    <span class="badge b-nl">Netlify</span>
+    <div class="step-title">UPDATE FRONTEND URL &amp; DEPLOY ON NETLIFY</div>
+  </div>
+  <div class="step-body">
+    <div class="subs">
+
+      <div class="sub">
+        <div class="snum g">1</div>
+        <div class="sc">
+          <h3>Update your Worker URL in the frontend file</h3>
+          <p>Open <strong>frontend/index.html</strong> in any text editor. Find this line near the bottom:</p>
+          <div class="code"><span class="ke">const</span> <span class="hi">API</span> = <span class="va">"https://YOUR-WORKER.workers.dev"</span>;</div>
+          <p>Replace it with your actual Worker URL from Step 2:</p>
+          <div class="code"><span class="ke">const</span> <span class="hi">API</span> = <span class="va">"https://clipforge-worker.YOUR-NAME.workers.dev"</span>;</div>
+          <p>Save the file.</p>
+        </div>
+      </div>
+
+      <div class="sub">
+        <div class="snum g">2</div>
+        <div class="sc">
+          <h3>Push to GitHub</h3>
+          <p>In your terminal / GitHub Desktop, commit and push the updated file:</p>
+          <div class="code">git add frontend/index.html
+git commit -m <span class="va">"Set Cloudflare Worker URL"</span>
+git push</div>
+          <div class="alert ai"><span>ℹ</span><span>If you haven't pushed to GitHub yet: create a new repo on github.com named <strong>clipforge</strong>, then push all files there.</span></div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <div class="snum g">3</div>
+        <div class="sc">
+          <h3>Deploy on Netlify (free, no card)</h3>
+          <p>Go to <strong>netlify.com</strong> → sign up free → <strong>Add new site → Import from GitHub</strong> → select your <strong>clipforge</strong> repo.</p>
+          <div class="mock">
+            <div class="mock-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><div class="mock-url">app.netlify.com</div></div>
+            <div class="mock-body">
+              <div class="mf">
+                <div class="mfl">Base directory</div>
+                <div class="mfv active"><span class="arr">→ </span><span class="va">frontend</span></div>
+                <div class="mfl">Build command</div>
+                <div class="mfv"><span style="color:#5a6a8a">(leave empty)</span></div>
+                <div class="mfl">Publish directory</div>
+                <div class="mfv active"><span class="arr">→ </span><span class="va">frontend</span></div>
+                <div class="mbtn green" style="margin-top:4px">Deploy site</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <div class="snum g">4</div>
+        <div class="sc">
+          <h3>🎉 Your app is live!</h3>
+          <p>Netlify gives you a URL like <strong>https://clipforge-xyz.netlify.app</strong>. Share it with anyone.</p>
+          <div class="alert ag"><span>✓</span><span>Future changes pushed to GitHub will <strong>auto-redeploy</strong> on both Netlify and Cloudflare.</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div class="sum">
+  <h2>🎬 CLIPFORGE IS LIVE — ALL FREE</h2>
+  <div class="sitems">
+    <div class="sitem"><span>🤖</span> Gemini Flash AI — 1500 free requests/day, no card</div>
+    <div class="sitem"><span>⚡</span> Cloudflare Workers — 100,000 free requests/day, no card</div>
+    <div class="sitem"><span>🌐</span> Netlify — unlimited frontend hosting, no card</div>
+    <div class="sitem"><span>📥</span> cobalt.tools — free video downloading for clips</div>
+    <div class="sitem"><span>💰</span> Total cost: $0 — forever</div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
