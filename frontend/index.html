@@ -389,15 +389,16 @@ footer span { color:var(--accent); }
 
     <div class="cobalt-info">
       <h3>📥 How to download your clips</h3>
-      <p>
-        Each clip has a <strong>Download Clip</strong> button that opens <code>cobalt.tools</code> — a completely free, open-source video downloader.<br><br>
+     <p>
+  Each clip has a <strong>Download Clip</strong> button that opens the download page directly at the right timestamp. Just choose your quality and hit Download — no pasting needed.
+</p>
         On cobalt.tools: paste the YouTube link shown → choose quality → click Download. Your clip starts at the exact timestamp.
       </p>
     </div>
   </div>
 </main>
 
-<footer>Built with <span>ClipForge</span> · Gemini AI · cobalt.tools · 100% Free Forever</footer>
+<footer>Built with <span>ClipForge</span> · Groq AI · ssyoutube · 100% Free Forever</footer>
 
 <script>
 // ─────────────────────────────────────────────────────────────
@@ -514,7 +515,7 @@ function renderResults(data, originalUrl) {
 
     // Build cobalt URL — user pastes YT link with timestamp
     const ytTimestampUrl = `https://www.youtube.com/watch?v=${esc(clip.videoId)}&t=${Math.floor(clip.start)}s`;
-    const cobaltUrl = `https://cobalt.tools/`;
+    const cobaltUrl = `https://www.ssyoutube.com/watch?v=${clip.videoId}&t=${Math.floor(clip.start)}s`;
 
     card.innerHTML = `
       <div class="clip-num">0${i+1}</div>
@@ -527,26 +528,10 @@ function renderResults(data, originalUrl) {
           <span class="chip">⏹ ${fmtTime(clip.end)}</span>
           <span class="chip dur">⏱ ${fmtDur(clip.duration)}</span>
         </div>
-        <div class="dl-section">
-          <div class="dl-title">Download this clip</div>
-          <div class="dl-steps">
-            <div class="dl-step">
-              <div class="dl-step-num">1</div>
-              <span>Click <strong>Download Clip</strong> → cobalt.tools opens</span>
-            </div>
-            <div class="dl-step">
-              <div class="dl-step-num">2</div>
-              <span>Paste this link into cobalt.tools: <code style="font-family:monospace;font-size:11px;background:#0d0d1a;padding:2px 6px;border-radius:4px;color:#93c5fd;word-break:break-all;">${ytTimestampUrl}</code></span>
-            </div>
-            <div class="dl-step">
-              <div class="dl-step-num">3</div>
-              <span>Choose quality → Download → Done! ✓</span>
-            </div>
-          </div>
-          <div class="dl-btns">
-            <a class="btn-dl" href="${cobaltUrl}" target="_blank" rel="noopener" onclick="copyUrl(event, '${ytTimestampUrl}')">
-              ↓ Download Clip
-            </a>
+                 <div class="dl-btns">
+            <a class="btn-dl" href="${cobaltUrl}" target="_blank" rel="noopener">
+  ↓ Download Clip
+</a>
             <a class="btn-yt" href="${ytTimestampUrl}" target="_blank" rel="noopener">
               ▶ Watch on YouTube
             </a>
